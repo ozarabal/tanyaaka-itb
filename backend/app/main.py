@@ -1,3 +1,11 @@
+# Patch sqlite3 for Azure App Service (ships with old sqlite3)
+try:
+    __import__("pysqlite3")
+    import sys
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
 from pathlib import Path
 
 from fastapi import FastAPI
