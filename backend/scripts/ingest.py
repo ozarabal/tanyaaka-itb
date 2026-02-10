@@ -28,7 +28,7 @@ def main():
 
     print(f"Ingesting PDFs from: {args.pdf_dir}")
 
-    processor = DocumentProcessor()
+    processor = DocumentProcessor(use_academic_processor=True)
     chunks = processor.process_directory(args.pdf_dir)
 
     if not chunks:

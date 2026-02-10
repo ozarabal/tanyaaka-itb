@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # RAG
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
-    RETRIEVER_TOP_K: int = 4
+    RETRIEVER_TOP_K: int = 7
 
     # PDF source directory
     PDF_DIR: str = "./data/pdfs"

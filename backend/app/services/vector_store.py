@@ -1,6 +1,7 @@
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, AzureOpenAIEmbeddings
 from langchain.schema import Document
+from langchain_community.vectorstores.utils import filter_complex_metadata
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -30,10 +31,34 @@ class VectorStoreService:
             logger.info("chroma_initialized", persist_dir=settings.CHROMA_PERSIST_DIR)
         return self._store
 
+    def _clean_metadata(self, metadata: dict) -> dict:
+        """Remove None values and ensure all values are str, int, float, or bool"""
+        cleaned = {}
+        for key, value in metadata.items():
+            if value is None:
+                # Konversi None menjadi string kosong atau skip
+                cleaned[key] = ""  # atau bisa di-skip dengan continue
+            elif isinstance(value, (str, int, float, bool)):
+                cleaned[key] = value
+            else:
+                # Konversi type lain ke string
+                cleaned[key] = str(value)
+        return cleaned
+
     def add_documents(self, documents: list[Document]) -> int:
         """Add document chunks to the vector store. Returns count added."""
-        self.store.add_documents(documents)
-        count = len(documents)
+        # Clean metadata untuk setiap document
+        cleaned_docs = []
+        for doc in documents:
+            cleaned_metadata = self._clean_metadata(doc.metadata)
+            cleaned_doc = Document(
+                page_content=doc.page_content,
+                metadata=cleaned_metadata
+            )
+            cleaned_docs.append(cleaned_doc)
+        
+        self.store.add_documents(cleaned_docs)
+        count = len(cleaned_docs)
         logger.info("documents_added", count=count)
         return count
 
