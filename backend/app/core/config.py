@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
+from pydantic import field_validator
+from typing import Optional, Union
+import json
 
 
 class Settings(BaseSettings):
@@ -13,7 +15,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "TanyaAka-ITB"
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = False
-    CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+    CORS_ORIGINS: Union[list[str], str] = '["http://localhost:5173"]'
 
     # LLM Provider: "openai" or "azure"
     LLM_PROVIDER: str = "openai"
@@ -35,6 +37,35 @@ class Settings(BaseSettings):
 
     # PDF source directory
     PDF_DIR: str = "./data/pdfs"
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """Parse CORS_ORIGINS from environment variable."""
+        if isinstance(v, str):
+            # Remove any whitespace
+            v = v.strip()
+            
+            # Try to parse as JSON first
+            if v.startswith("["):
+                try:
+                    return json.loads(v)
+                except json.JSONDecodeError:
+                    pass
+            
+            # If comma-separated, split it
+            if "," in v:
+                return [origin.strip() for origin in v.split(",")]
+            
+            # Single origin
+            if v:
+                return [v]
+            
+            # Empty string, return default
+            return ["http://localhost:5173"]
+        
+        # Already a list
+        return v
 
 
 settings = Settings()
