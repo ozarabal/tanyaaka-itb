@@ -8,7 +8,7 @@ interface MessageBubbleProps {
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
-
+  console.log(message.content)
   if (message.isLoading) {
     return (
       <div className="flex justify-start gap-3 message-enter">

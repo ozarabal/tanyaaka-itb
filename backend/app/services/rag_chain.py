@@ -15,7 +15,7 @@ Tugasmu adalah menjawab pertanyaan tentang peraturan akademik berdasarkan kontek
 Aturan:
 1. Jawab HANYA berdasarkan konteks yang diberikan. Jika informasi tidak ada di konteks, katakan bahwa kamu tidak menemukan informasi tersebut.
 2. Jawab dalam bahasa yang sama dengan pertanyaan (Indonesia atau Inggris).
-3. Sebutkan sumber dokumen yang relevan di akhir jawaban.
+3. Sebutkan sumber dokumen yang relevan di akhir jawaban, tidak perlu sertakan halaman.
 4. Berikan jawaban yang ringkas dan jelas.
 
 Konteks:
@@ -27,7 +27,7 @@ USER_PROMPT = "{question}"
 
 def _create_llm():
     return ChatOpenAI(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         api_key=settings.OPENAI_API_KEY,
         temperature=0.1,
         max_tokens=1024,
@@ -59,6 +59,8 @@ class RAGChain:
         logger.info("rag_retrieve", question_length=len(question), docs_found=len(docs))
 
         context = _format_docs(docs)
+        
+        # print("Context for LLM:\n", context)  # Debug: print context
 
         chain = self._prompt | self._llm | StrOutputParser()
         answer = await chain.ainvoke({"context": context, "question": question})
@@ -71,7 +73,7 @@ class RAGChain:
                 "content_snippet": doc.page_content[:200],
             })
 
-        model_name = ("gpt-3.5-turbo")
+        model_name = ("gpt-4o-mini")
 
         return {
             "answer": answer,
