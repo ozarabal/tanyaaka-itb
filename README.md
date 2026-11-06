@@ -152,6 +152,18 @@ pytest
 - Node.js 18+
 - OpenAI API key
 
+### Quick Start with Docker
+
+```bash
+cp backend/.env.example backend/.env
+# Edit backend/.env and set OPENAI_API_KEY
+
+docker compose up -d
+# App (UI + API) available at http://localhost:8000
+```
+
+On first start the container ingests the PDF into ChromaDB (stored in the `chroma_data` volume), so the first boot takes a little longer. Follow progress with `docker compose logs -f`. To re-ingest, run `docker compose down -v` and start again.
+
 ### Backend Setup
 
 ```bash
